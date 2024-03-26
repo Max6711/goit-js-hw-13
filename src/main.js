@@ -17,11 +17,11 @@ const hideLoader = () => {
   loader.classList.remove('is-open');
 };
 const showSecondLoader = () => {
-  loaderSecond.classList.remove('hidden')
-}
+  loaderSecond.classList.remove('hidden');
+};
 const hideSecondLoader = () => {
-  loaderSecond.classList.add("hidden")
-}
+  loaderSecond.classList.add('hidden');
+};
 
 let page = 1;
 const per_page = 15;
@@ -34,7 +34,6 @@ const lightbox = new simpleLightbox('.gallery a', {});
 form.addEventListener('submit', async evt => {
   galWrap.innerHTML = '';
   evt.preventDefault();
-  showLoader();
   try {
     searchWord = searchInput.value;
     if (!searchWord) {
@@ -43,6 +42,7 @@ form.addEventListener('submit', async evt => {
         message: 'Search word is empty',
       });
     }
+    showLoader();
     const imagesData = await fetchImg(searchWord);
     const { hits } = imagesData;
     page += 1;
@@ -54,13 +54,14 @@ form.addEventListener('submit', async evt => {
         position: 'topRight',
       });
     }
-
-    createGalleryMarkup(hits);
     if (page >= 2) {
       moreBtn.classList.remove('hidden');
     }
+    createGalleryMarkup(hits);
+
     lightbox.refresh();
     hideLoader();
+
     form.reset();
   } catch (error) {
     console.log(error);
@@ -69,7 +70,7 @@ form.addEventListener('submit', async evt => {
 
 moreBtn.addEventListener('click', async evt => {
   evt.preventDefault();
-  showSecondLoader()
+
   if (page > totalPages) {
     moreBtn.classList.add('hidden');
     return iziToast.error({
@@ -78,11 +79,14 @@ moreBtn.addEventListener('click', async evt => {
     });
   }
   try {
+    showSecondLoader();
     const imagesData = await fetchImg(searchWord, page, per_page);
-    hideSecondLoader();
+
     page += 1;
     const { hits } = imagesData;
     createGalleryMarkup(hits);
+    smoothScroll();
+    hideSecondLoader();
     lightbox.refresh();
   } catch (error) {
     console.log(error);
@@ -90,3 +94,12 @@ moreBtn.addEventListener('click', async evt => {
 
   form.reset();
 });
+
+function smoothScroll() {
+  const card = document.querySelector('.gallery-list-item');
+  const cardHeight = card.getBoundingClientRect().height;
+  window.scrollBy({
+    top: cardHeight * 2,
+    behavior: 'smooth',
+  });
+}
