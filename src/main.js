@@ -15,7 +15,7 @@ let searchWord = '';
 const galWrap = document.querySelector('.gallery');
 const moreBtn = document.querySelector('.more-btn');
 let page;
-const per_page = 40;
+const per_page = 15;
 const totalPages = Math.ceil(500 / per_page);
 const lightbox = new simpleLightbox('.gallery a', {});
 
