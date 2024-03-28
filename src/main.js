@@ -41,11 +41,12 @@ const hideMoreBtn = () => {
 // оборбка події сабміт
 
 form.addEventListener('submit', async evt => {
+  hideMoreBtn();
   galWrap.innerHTML = '';
   evt.preventDefault();
   page = 1;
   try {
-    searchWord = searchInput.value;
+    searchWord = searchInput.value.trim();
     if (!searchWord) {
       return iziToast.error({
         position: 'topRight',
@@ -54,8 +55,12 @@ form.addEventListener('submit', async evt => {
     }
     showLoader();
     const imagesData = await fetchImg(searchWord, page);
-
     const { hits } = imagesData;
+    if (hits.length === 0) {
+      form.reset();
+      return hideLoader();
+    }
+
     page += 1;
     if (hits.length === 0) {
       iziToast.show({
@@ -94,8 +99,15 @@ moreBtn.addEventListener('click', async evt => {
 
     page += 1;
     const { hits } = imagesData;
+    if (hits.length === 0) {
+      hideMoreBtn();
+      form.refresh();
+      return iziToast.info({
+        position: 'topRight',
+        message: "We're sorry, but you've reached the end of search results.",
+      });
+    }
     createGalleryMarkup(hits);
-
     hideSecondLoader();
     lightbox.refresh();
   } catch (error) {
