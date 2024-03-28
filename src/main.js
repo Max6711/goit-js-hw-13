@@ -1,14 +1,23 @@
+// Імпорти бібліотек
+import simpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
+// Імпорти функцій
+import fetchImg from './js/pixabay-api';
+import createGalleryMarkup from './js/render-functions';
+
 const form = document.querySelector('.form');
 const loader = document.querySelector('.loader');
 const loaderSecond = document.querySelector('.loader-2');
 const searchInput = document.querySelector('.search-input');
 let searchWord = '';
 const galWrap = document.querySelector('.gallery');
-import simpleLightbox from 'simplelightbox';
-import 'simplelightbox/dist/simple-lightbox.min.css';
-import iziToast from 'izitoast';
-import 'izitoast/dist/css/iziToast.min.css';
 const moreBtn = document.querySelector('.more-btn');
+let page;
+const per_page = 40;
+const totalPages = Math.ceil(500 / per_page);
+const lightbox = new simpleLightbox('.gallery a', {});
 
 const showLoader = () => {
   loader.classList.add('is-open');
@@ -29,13 +38,7 @@ const hideMoreBtn = () => {
   moreBtn.classList.add('hidden');
 };
 
-let page;
-const per_page = 15;
-const totalPages = Math.ceil(500 / per_page);
-
-import fetchImg from './js/pixabay-api';
-import createGalleryMarkup from './js/render-functions';
-const lightbox = new simpleLightbox('.gallery a', {});
+// оборбка події сабміт
 
 form.addEventListener('submit', async evt => {
   galWrap.innerHTML = '';
@@ -50,7 +53,7 @@ form.addEventListener('submit', async evt => {
       });
     }
     showLoader();
-    const imagesData = await fetchImg(searchWord);
+    const imagesData = await fetchImg(searchWord, page);
 
     const { hits } = imagesData;
     page += 1;
@@ -74,6 +77,8 @@ form.addEventListener('submit', async evt => {
   }
 });
 
+// Обробка події клік кнопки Load more
+
 moreBtn.addEventListener('click', async evt => {
   evt.preventDefault();
   showSecondLoader();
@@ -85,7 +90,7 @@ moreBtn.addEventListener('click', async evt => {
     });
   }
   try {
-    const imagesData = await fetchImg(searchWord, page, per_page);
+    const imagesData = await fetchImg(searchWord, page);
 
     page += 1;
     const { hits } = imagesData;
@@ -99,6 +104,8 @@ moreBtn.addEventListener('click', async evt => {
   smoothScroll();
   form.reset();
 });
+
+// Функція плавного скроллу
 
 function smoothScroll() {
   const card = document.querySelector('.gallery-list-item');
