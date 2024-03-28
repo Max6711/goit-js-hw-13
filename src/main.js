@@ -17,13 +17,19 @@ const hideLoader = () => {
   loader.classList.remove('is-open');
 };
 const showSecondLoader = () => {
-  loaderSecond.classList.remove('hidden');
+  loaderSecond.classList.add('is-open');
 };
 const hideSecondLoader = () => {
-  loaderSecond.classList.add('hidden');
+  loaderSecond.classList.remove('is-open');
+};
+const showMoreBtn = () => {
+  moreBtn.classList.remove('hidden');
+};
+const hideMoreBtn = () => {
+  moreBtn.classList.add('hidden');
 };
 
-let page = 1;
+let page;
 const per_page = 15;
 const totalPages = Math.ceil(500 / per_page);
 
@@ -34,6 +40,7 @@ const lightbox = new simpleLightbox('.gallery a', {});
 form.addEventListener('submit', async evt => {
   galWrap.innerHTML = '';
   evt.preventDefault();
+  page = 1;
   try {
     searchWord = searchInput.value;
     if (!searchWord) {
@@ -44,6 +51,7 @@ form.addEventListener('submit', async evt => {
     }
     showLoader();
     const imagesData = await fetchImg(searchWord);
+
     const { hits } = imagesData;
     page += 1;
     if (hits.length === 0) {
@@ -54,9 +62,7 @@ form.addEventListener('submit', async evt => {
         position: 'topRight',
       });
     }
-    if (page >= 2) {
-      moreBtn.classList.remove('hidden');
-    }
+    showMoreBtn();
     createGalleryMarkup(hits);
 
     lightbox.refresh();
@@ -70,7 +76,7 @@ form.addEventListener('submit', async evt => {
 
 moreBtn.addEventListener('click', async evt => {
   evt.preventDefault();
-
+ showSecondLoader();
   if (page > totalPages) {
     moreBtn.classList.add('hidden');
     return iziToast.error({
@@ -79,19 +85,19 @@ moreBtn.addEventListener('click', async evt => {
     });
   }
   try {
-    showSecondLoader();
+   
     const imagesData = await fetchImg(searchWord, page, per_page);
 
     page += 1;
     const { hits } = imagesData;
     createGalleryMarkup(hits);
-    smoothScroll();
+
     hideSecondLoader();
     lightbox.refresh();
   } catch (error) {
     console.log(error);
   }
-
+   smoothScroll();
   form.reset();
 });
 
