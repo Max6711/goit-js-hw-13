@@ -62,12 +62,12 @@ form.addEventListener('submit', async evt => {
         position: 'topRight',
       });
     }
-    showMoreBtn();
+
     createGalleryMarkup(hits);
 
     lightbox.refresh();
     hideLoader();
-
+    showMoreBtn();
     form.reset();
   } catch (error) {
     console.log(error);
@@ -76,7 +76,7 @@ form.addEventListener('submit', async evt => {
 
 moreBtn.addEventListener('click', async evt => {
   evt.preventDefault();
- showSecondLoader();
+  showSecondLoader();
   if (page > totalPages) {
     moreBtn.classList.add('hidden');
     return iziToast.error({
@@ -85,7 +85,6 @@ moreBtn.addEventListener('click', async evt => {
     });
   }
   try {
-   
     const imagesData = await fetchImg(searchWord, page, per_page);
 
     page += 1;
@@ -97,7 +96,7 @@ moreBtn.addEventListener('click', async evt => {
   } catch (error) {
     console.log(error);
   }
-   smoothScroll();
+  smoothScroll();
   form.reset();
 });
 
