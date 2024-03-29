@@ -14,9 +14,9 @@ const searchInput = document.querySelector('.search-input');
 let searchWord = '';
 const galWrap = document.querySelector('.gallery');
 const moreBtn = document.querySelector('.more-btn');
-let page;
+let page = 1;
+let totalPages;
 const per_page = 15;
-const totalPages = Math.ceil(500 / per_page);
 const lightbox = new SimpleLightbox('.gallery a', {});
 
 const showLoader = () => {
@@ -44,20 +44,23 @@ form.addEventListener('submit', async evt => {
   hideMoreBtn();
   galWrap.innerHTML = '';
   evt.preventDefault();
-  page = 1;
+
   try {
     searchWord = searchInput.value.trim();
     if (!searchWord) {
+      form.reset();
       return IziToast.error({
         position: 'topRight',
         message: 'Search word is empty',
       });
     }
     showLoader();
-    const imagesData = await fetchImg(searchWord, page);
-    const { hits } = imagesData;
+    const imagesData = await fetchImg(searchWord, page, per_page);
+    const { hits, totalHits } = imagesData;
+    totalPages = Math.ceil(totalHits / per_page);
+
     if (hits.length === 0) {
-       hideLoader();
+      hideLoader();
       form.reset();
       return IziToast.show({
         message:
@@ -75,6 +78,15 @@ form.addEventListener('submit', async evt => {
     hideLoader();
     showMoreBtn();
     form.reset();
+
+    if (page > totalPages) {
+      hideMoreBtn();
+      form.reset();
+      return IziToast.info({
+        position: 'topRight',
+        message: "We're sorry, but you've reached the end of search results.",
+      });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -93,15 +105,15 @@ moreBtn.addEventListener('click', async evt => {
     });
   }
   try {
-    const imagesData = await fetchImg(searchWord, page);
+    const imagesData = await fetchImg(searchWord, page, per_page);
 
     page += 1;
-    const { hits } = imagesData;
-    
+    const { hits, totalHits } = imagesData;
+    totalPages = Math.ceil(totalHits / per_page);
     createGalleryMarkup(hits);
     hideSecondLoader();
     lightbox.refresh();
-    if (hits.length === 0) {
+    if (page > totalPages) {
       hideMoreBtn();
       form.reset();
       return IziToast.info({
@@ -112,7 +124,7 @@ moreBtn.addEventListener('click', async evt => {
   } catch (error) {
     console.log(error);
   }
-  
+
   smoothScroll();
   form.reset();
 });
