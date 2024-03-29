@@ -1,7 +1,7 @@
 // Імпорти бібліотек
-import simpleLightbox from 'simplelightbox';
+import SimpleLightbox from 'simplelightbox';
 import 'simplelightbox/dist/simple-lightbox.min.css';
-import iziToast from 'izitoast';
+import IziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 // Імпорти функцій
 import fetchImg from './js/pixabay-api';
@@ -17,7 +17,7 @@ const moreBtn = document.querySelector('.more-btn');
 let page;
 const per_page = 15;
 const totalPages = Math.ceil(500 / per_page);
-const lightbox = new simpleLightbox('.gallery a', {});
+const lightbox = new SimpleLightbox('.gallery a', {});
 
 const showLoader = () => {
   loader.classList.add('is-open');
@@ -48,7 +48,7 @@ form.addEventListener('submit', async evt => {
   try {
     searchWord = searchInput.value.trim();
     if (!searchWord) {
-      return iziToast.error({
+      return IziToast.error({
         position: 'topRight',
         message: 'Search word is empty',
       });
@@ -57,19 +57,17 @@ form.addEventListener('submit', async evt => {
     const imagesData = await fetchImg(searchWord, page);
     const { hits } = imagesData;
     if (hits.length === 0) {
+       hideLoader();
       form.reset();
-      return hideLoader();
-    }
-
-    page += 1;
-    if (hits.length === 0) {
-      iziToast.show({
+      return IziToast.show({
         message:
           'Sorry, there are no images matching your search query. Please try again!',
         color: 'red',
         position: 'topRight',
       });
     }
+
+    page += 1;
 
     createGalleryMarkup(hits);
 
@@ -88,8 +86,8 @@ moreBtn.addEventListener('click', async evt => {
   evt.preventDefault();
   showSecondLoader();
   if (page > totalPages) {
-    moreBtn.classList.add('hidden');
-    return iziToast.error({
+    hideMoreBtn();
+    return IziToast.error({
       position: 'topRight',
       message: "We're sorry, but you've reached the end of search results.",
     });
@@ -99,20 +97,22 @@ moreBtn.addEventListener('click', async evt => {
 
     page += 1;
     const { hits } = imagesData;
+    
+    createGalleryMarkup(hits);
+    hideSecondLoader();
+    lightbox.refresh();
     if (hits.length === 0) {
       hideMoreBtn();
-      form.refresh();
-      return iziToast.info({
+      form.reset();
+      return IziToast.info({
         position: 'topRight',
         message: "We're sorry, but you've reached the end of search results.",
       });
     }
-    createGalleryMarkup(hits);
-    hideSecondLoader();
-    lightbox.refresh();
   } catch (error) {
     console.log(error);
   }
+  
   smoothScroll();
   form.reset();
 });
