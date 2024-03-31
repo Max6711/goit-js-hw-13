@@ -41,6 +41,7 @@ const hideMoreBtn = () => {
 // оборбка події сабміт
 
 form.addEventListener('submit', async evt => {
+  page = 1;
   hideMoreBtn();
   galWrap.innerHTML = '';
   evt.preventDefault();
